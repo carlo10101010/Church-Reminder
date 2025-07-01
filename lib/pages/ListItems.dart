@@ -32,6 +32,13 @@ class _ListitemsState extends State<Listitems> {
           return Itemcart(reminder: reminder);
         }).toList(),
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.pushNamed(context, '/add');
+        },
+        label: Text('Add Reminder'),
+        icon: Icon(Icons.add),
+      ),
     );
   }
 }
