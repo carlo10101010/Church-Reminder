@@ -1,23 +1,16 @@
-import 'package:church_reminder/pages/Addreminder.dart';
-import 'package:church_reminder/pages/Dashboard.dart';
-import 'package:church_reminder/pages/Itemcart.dart';
-import 'package:church_reminder/pages/ListItems.dart';
-import 'package:church_reminder/World_Time/Home.dart';
-import 'package:church_reminder/World_Time/Loading.dart';
-import 'package:church_reminder/World_Time/Choose_Location.dart';
 import 'package:flutter/material.dart';
+import 'World_Time/ChooseLocation.dart';
+import 'World_Time/Home.dart';
+import 'World_Time/Loading.dart';
 
 
-void main() {
- runApp(MaterialApp(
-  initialRoute: '/home',
-  routes: {
-   '/dashboard': (context) => Dashboard(),
-   '/add' : (context) => Addreminder(),
-   '/loading' : (context) => Loading(),
-   '/' : (context) => Home(),
-   '/location' : (context) => ChooseLocation()
+void main() => runApp(MaterialApp(
+ debugShowCheckedModeBanner: false,
+ initialRoute: '/',
+ routes: {
+  '/': (context) => Loading(),
+  '/home': (context) => Home(),
+  '/location': (context) => ChooseLocation(),
+ },
+));
 
-  },
- ));
-}
