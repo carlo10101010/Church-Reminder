@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'Addreminder.dart';
+import 'Reminder.dart';
 
 class Dashboard extends StatelessWidget {
   final Color primaryColor = Color(0xFF1565C0); 
@@ -7,6 +8,7 @@ class Dashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: primaryColor,
@@ -60,11 +62,19 @@ class Dashboard extends StatelessWidget {
                     Flexible(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: ActionCard(
-                          icon: Icons.church,
-                          label: 'Sunday Reminder',
-                          subLabel: 'Set weekly reminder',
-                          iconSize: 40,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => SundayReminderPage()),
+                            );
+                          },
+                          child: ActionCard(
+                            icon: Icons.church,
+                            label: 'Sunday Reminder',
+                            subLabel: 'Set weekly reminder',
+                            iconSize: 40,
+                          ),
                         ),
                       ),
                     ),
