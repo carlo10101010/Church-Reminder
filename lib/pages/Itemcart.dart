@@ -17,8 +17,18 @@ class Itemcart extends StatelessWidget {
   Widget build(BuildContext context) {
     final now = DateTime.now();
     final eventDate = reminder.date;
-    final daysLeft = eventDate.difference(DateTime(now.year, now.month, now.day)).inDays;
+    final today = DateTime(now.year, now.month, now.day);
+    final eventDay = DateTime(eventDate.year, eventDate.month, eventDate.day);
+    final daysDiff = eventDay.difference(today).inDays;
     String formattedDate = "${_monthName(eventDate.month)} ${eventDate.day}";
+    String daysText;
+    if (daysDiff > 0) {
+      daysText = "$daysDiff days";
+    } else if (daysDiff == 0) {
+      daysText = "Today";
+    } else {
+      daysText = "${-daysDiff} days ago";
+    }
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 2,
@@ -30,8 +40,12 @@ class Itemcart extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 24,
-              backgroundColor: Color(0xFF263D9A),
-              child: Icon(Icons.calendar_today, color: Colors.white, size: 28),
+              backgroundColor: isEnabled ? Color(0xFF263D9A) : Colors.grey[400],
+              child: Icon(
+                isEnabled ? Icons.calendar_today : Icons.event_busy,
+                color: Colors.white,
+                size: 28,
+              ),
             ),
             SizedBox(width: 16),
             Expanded(
@@ -40,12 +54,19 @@ class Itemcart extends StatelessWidget {
                 children: [
                   Text(
                     reminder.event,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      decoration: isEnabled ? null : TextDecoration.lineThrough,
+                    ),
                   ),
                   SizedBox(height: 6),
                   Text(
-                    '$formattedDate • $daysLeft days',
-                    style: TextStyle(color: Color(0xFF263D9A), fontWeight: FontWeight.w600),
+                    '$formattedDate • $daysText',
+                    style: TextStyle(
+                      color: Color(0xFF263D9A),
+                      fontWeight: FontWeight.normal,
+                    ),
                   ),
                 ],
               ),

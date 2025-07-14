@@ -58,10 +58,16 @@ class _ListitemsState extends State<Listitems> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Occasions',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
         ),
+        title: const Text(
+          'Church Occasions',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+        ),
+        backgroundColor: const Color(0xFF1565C0),
+        elevation: 0,
       ),
       body: ListView(
         children: reminder.map((reminder) {

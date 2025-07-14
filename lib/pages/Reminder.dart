@@ -99,21 +99,14 @@ class _SundayReminderPageState extends State<SundayReminderPage> with TickerProv
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
           'Sunday Reminder',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
         ),
         actions: [
-          TextButton(
-            onPressed: () {},
-            child: const Text(
-              'Save',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 16),
-            ),
-          ),
         ],
         backgroundColor: const Color(0xFF1565C0),
         elevation: 0,
@@ -198,103 +191,84 @@ class _SundayReminderPageState extends State<SundayReminderPage> with TickerProv
                 ],
               ),
             ),
-            const SizedBox(height: 16),
-            // Reminder Time Card
-            Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              elevation: 0.5,
-              child: ListTile(
-                leading: const Icon(Icons.access_time, color: Color(0xFF1565C0)),
-                title: const Text('Reminder Time', style: TextStyle(fontWeight: FontWeight.w500)),
-                subtitle: Text('Every Sunday at $formattedTime'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: isReminderEnabled ? _pickTime : null,
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Reminder Details
-            Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              elevation: 0.5,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Reminder Details',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        const Icon(Icons.repeat, size: 22, color: Colors.black54),
-                        const SizedBox(width: 12),
-                        const Text('Frequency', style: TextStyle(fontWeight: FontWeight.w500)),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: SingleChildScrollView(
-                            controller: _frequencyController,
-                            scrollDirection: Axis.horizontal,
-                            child: const Text(
-                              'Every Sunday',
-                              style: TextStyle(color: Colors.grey),
-                              maxLines: 1,
-                              softWrap: false,
-                              overflow: TextOverflow.visible,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        const Icon(Icons.notifications_active, size: 22, color: Colors.black54),
-                        const SizedBox(width: 12),
-                        const Text('Notification', style: TextStyle(fontWeight: FontWeight.w500)),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: SingleChildScrollView(
-                            controller: _notificationController,
-                            scrollDirection: Axis.horizontal,
-                            child: const Text(
-                              'Local notification with sound',
-                              style: TextStyle(color: Colors.grey),
-                              maxLines: 1,
-                              softWrap: false,
-                              overflow: TextOverflow.visible,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        const Icon(Icons.info_outline, size: 22, color: Colors.black54),
-                        const SizedBox(width: 12),
-                        const Text('Note', style: TextStyle(fontWeight: FontWeight.w500)),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: SingleChildScrollView(
-                            controller: _noteController,
-                            scrollDirection: Axis.horizontal,
-                            child: const Text(
-                              'Reminder will continue until disabled',
-                              style: TextStyle(color: Colors.grey),
-                              maxLines: 1,
-                              softWrap: false,
-                              overflow: TextOverflow.visible,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+            if (isReminderEnabled) ...[
+              Card(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                elevation: 0.5,
+                child: ListTile(
+                  leading: const Icon(Icons.access_time, color: Color(0xFF1565C0)),
+                  title: const Text('Reminder Time', style: TextStyle(fontWeight: FontWeight.w500)),
+                  subtitle: Text('Every Sunday at $formattedTime'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: _pickTime,
                 ),
               ),
-            ),
+              const SizedBox(height: 16),
+              Card(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                elevation: 0.5,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Reminder Details',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.repeat, size: 22, color: Colors.black54),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Frequency', style: TextStyle(fontWeight: FontWeight.w500)),
+                              const SizedBox(height: 2),
+                              const Text('Every Sunday', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.notifications_active, size: 22, color: Colors.black54),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Notification', style: TextStyle(fontWeight: FontWeight.w500)),
+                              const SizedBox(height: 2),
+                              const Text('Local notification', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.info_outline, size: 22, color: Colors.black54),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Note', style: TextStyle(fontWeight: FontWeight.w500)),
+                              const SizedBox(height: 2),
+                              const Text('Reminder will continue until disabled', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),

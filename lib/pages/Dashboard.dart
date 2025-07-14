@@ -1,8 +1,44 @@
 import 'package:flutter/material.dart';
 import 'Addreminder.dart';
 import 'Reminder.dart';
+import 'dart:async'; // Added for Timer
+import 'package:table_calendar/table_calendar.dart';
+import 'ListItems.dart';
 
-class Dashboard extends StatelessWidget {
+class Dashboard extends StatefulWidget {
+  @override
+  _DashboardState createState() => _DashboardState();
+}
+
+class _DashboardState extends State<Dashboard> {
+  late String _currentTime;
+  late Timer _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentTime = _formattedTime();
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        _currentTime = _formattedTime();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  String _formattedTime() {
+    final now = DateTime.now();
+    String hour = now.hour.toString().padLeft(2, '0');
+    String minute = now.minute.toString().padLeft(2, '0');
+    String second = now.second.toString().padLeft(2, '0');
+    return '$hour:$minute:$second';
+  }
+
   final Color primaryColor = Color(0xFF1565C0); 
 
   @override
@@ -16,7 +52,12 @@ class Dashboard extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.calendar_today, color: Colors.white),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ChurchCalendarPage()),
+              );
+            },
           )
         ],
       ),
@@ -32,20 +73,41 @@ class Dashboard extends StatelessWidget {
                   width: double.infinity,
                   padding: EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.indigo[400],
+                    gradient: LinearGradient(
+                      colors: [Color(0xFF4F6DAD), Color(0xFF6A8EDB)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                     borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 8,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Good Morning',
+                        _getGreeting(),
                         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
                       ),
-                      SizedBox(height: 24),
+                      SizedBox(height: 8),
                       Text(
                         'Stay connected with your faith journey',
                         style: TextStyle(color: Colors.white70),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        _formattedToday(),
+                        style: TextStyle(color: Colors.white, fontSize: 15),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        _currentTime,
+                        style: TextStyle(color: Colors.white, fontSize: 15),
                       ),
                     ],
                   ),
@@ -124,42 +186,42 @@ class Dashboard extends StatelessWidget {
                 EventItem(
                   title: 'Assumption of Mary',
                   date: 'Aug 15, Fri',
-                  daysLeft: 45,
+                  daysLeftText: _daysLeftText(_parseEventDate('Aug 15, Fri')),
                 ),
                 EventItem(
                   title: 'All Saints\' Day',
                   date: 'Nov 1, Sat',
-                  daysLeft: 123,
+                  daysLeftText: _daysLeftText(_parseEventDate('Nov 1, Sat')),
                 ),
                 EventItem(
                   title: 'All Souls\' Day',
                   date: 'Nov 2, Sun',
-                  daysLeft: 124,
+                  daysLeftText: _daysLeftText(_parseEventDate('Nov 2, Sun')),
                 ),
                 EventItem(
                   title: 'Christ the King',
                   date: 'Nov 23, Sun',
-                  daysLeft: 145,
+                  daysLeftText: _daysLeftText(_parseEventDate('Nov 23, Sun')),
                 ),
                 EventItem(
                   title: 'Immaculate Conception',
                   date: 'Dec 8, Mon',
-                  daysLeft: 160,
+                  daysLeftText: _daysLeftText(_parseEventDate('Dec 8, Mon')),
                 ),
                 EventItem(
                   title: 'Simbang Gabi (Dawn Masses)',
                   date: 'Dec 16-24',
-                  daysLeft: 168,
+                  daysLeftText: _daysLeftText(_parseEventDate('Dec 16-24')),
                 ),
                 EventItem(
                   title: 'Christmas Day',
                   date: 'Dec 25, Thu',
-                  daysLeft: 177,
+                  daysLeftText: _daysLeftText(_parseEventDate('Dec 25, Thu')),
                 ),
                 EventItem(
                   title: 'New Year\'s Eve Thanksgiving Mass',
                   date: 'Dec 31, Wed',
-                  daysLeft: 183,
+                  daysLeftText: _daysLeftText(_parseEventDate('Dec 31, Wed')),
                 ),
               ],
             ),
@@ -168,6 +230,67 @@ class Dashboard extends StatelessWidget {
       ),
     );
   }
+}
+
+// Add this helper function at the top-level (outside any class):
+DateTime _parseEventDate(String dateStr) {
+  // Example: 'Aug 15, Fri' or 'Dec 16-24'
+  // We'll use the first date in the range if it's a range
+  final months = {
+    'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
+    'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12
+  };
+  final parts = dateStr.split(',')[0].split('-')[0].trim().split(' ');
+  if (parts.length < 2) return DateTime.now();
+  final month = months[parts[0]] ?? 1;
+  final day = int.tryParse(parts[1]) ?? 1;
+  final now = DateTime.now();
+  // Use this year, but if already passed, use next year
+  var eventDate = DateTime(now.year, month, day);
+  if (eventDate.isBefore(DateTime(now.year, now.month, now.day))) {
+    eventDate = DateTime(now.year + 1, month, day);
+  }
+  return eventDate;
+}
+
+String _daysLeftText(DateTime eventDate) {
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  final eventDay = DateTime(eventDate.year, eventDate.month, eventDate.day);
+  final daysDiff = eventDay.difference(today).inDays;
+  if (daysDiff > 0) {
+    return "$daysDiff days";
+  } else if (daysDiff == 0) {
+    return "Today";
+  } else {
+    return "${-daysDiff} days ago";
+  }
+}
+
+// Add these helper functions at the top-level (outside any class):
+String _getGreeting() {
+  final hour = DateTime.now().hour;
+  if (hour < 12) {
+    return 'Good Morning';
+  } else if (hour < 18) {
+    return 'Good Afternoon';
+  } else {
+    return 'Good Evening';
+  }
+}
+
+String _formattedToday() {
+  final now = DateTime.now();
+  final weekdays = [
+    'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+  ];
+  final months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+  String weekday = weekdays[now.weekday - 1];
+  String month = months[now.month - 1];
+  return '$weekday, $month ${now.day}, ${now.year}';
 }
 
 // COMPONENTS
@@ -211,12 +334,13 @@ class ActionCard extends StatelessWidget {
   }
 }
 
+// Update EventItem to accept daysLeftText and use normal font weight for title
 class EventItem extends StatelessWidget {
   final String title;
   final String date;
-  final int daysLeft;
+  final String daysLeftText;
 
-  const EventItem({required this.title, required this.date, required this.daysLeft});
+  const EventItem({required this.title, required this.date, required this.daysLeftText});
 
   @override
   Widget build(BuildContext context) {
@@ -230,12 +354,408 @@ class EventItem extends StatelessWidget {
         ),
         title: Text(
           title,
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.normal),
         ),
-        subtitle: Text('$date • $daysLeft days'),
+        subtitle: Text('$date • $daysLeftText'),
         trailing: Icon(Icons.arrow_forward_ios, size: 16),
         onTap: () {},
       ),
+    );
+  }
+}
+
+// Add the calendar page widget at the bottom of the file
+class ChurchCalendarPage extends StatefulWidget {
+  @override
+  _ChurchCalendarPageState createState() => _ChurchCalendarPageState();
+}
+
+class _ChurchCalendarPageState extends State<ChurchCalendarPage> {
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
+
+  final List<Reminder> _occasions = [
+    Reminder(place: 'Tuy', event: 'Solemnity of Mary, Mother of God', date: DateTime(2025, 1, 1)),
+    Reminder(place: 'Tuy', event: 'Epiphany of the Lord', date: DateTime(2025, 1, 7)),
+    Reminder(place: 'Tuy', event: 'Baptism of the Lord', date: DateTime(2025, 1, 12)),
+    Reminder(place: 'Tuy', event: 'Presentation of the Lord', date: DateTime(2025, 2, 2)),
+    Reminder(place: 'Tuy', event: 'Ash Wednesday', date: DateTime(2025, 2, 26)),
+    Reminder(place: 'Tuy', event: 'St. Joseph, Husband of Mary', date: DateTime(2025, 3, 19)),
+    Reminder(place: 'Tuy', event: 'Palm Sunday', date: DateTime(2025, 3, 30)),
+    Reminder(place: 'Tuy', event: 'Holy Thursday', date: DateTime(2025, 4, 3)),
+    Reminder(place: 'Tuy', event: 'Good Friday', date: DateTime(2025, 4, 4)),
+    Reminder(place: 'Tuy', event: 'Black Saturday', date: DateTime(2025, 4, 5)),
+    Reminder(place: 'Tuy', event: 'Easter Sunday', date: DateTime(2025, 4, 6)),
+    Reminder(place: 'Tuy', event: 'Ascension of the Lord', date: DateTime(2025, 5, 11)),
+    Reminder(place: 'Tuy', event: 'Pentecost Sunday', date: DateTime(2025, 5, 18)),
+    Reminder(place: 'Tuy', event: 'Holy Trinity Sunday', date: DateTime(2025, 5, 25)),
+    Reminder(place: 'Tuy', event: 'Corpus Christi', date: DateTime(2025, 6, 1)),
+    Reminder(place: 'Tuy', event: 'Sacred Heart of Jesus', date: DateTime(2025, 6, 13)),
+    Reminder(place: 'Tuy', event: 'Saints Peter and Paul', date: DateTime(2025, 6, 29)),
+    Reminder(place: 'Tuy', event: 'Assumption of Mary', date: DateTime(2025, 8, 15)),
+    Reminder(place: 'Tuy', event: 'All Saints\' Day', date: DateTime(2025, 11, 1)),
+    Reminder(place: 'Tuy', event: 'All Souls\' Day', date: DateTime(2025, 11, 2)),
+    Reminder(place: 'Tuy', event: 'Christ the King', date: DateTime(2025, 11, 23)),
+    Reminder(place: 'Tuy', event: 'Immaculate Conception', date: DateTime(2025, 12, 8)),
+    Reminder(place: 'Tuy', event: 'Simbang Gabi (Dawn Masses)', date: DateTime(2025, 12, 16)),
+    Reminder(place: 'Tuy', event: 'Christmas Day', date: DateTime(2025, 12, 25)),
+    Reminder(place: 'Tuy', event: 'New Year\'s Eve Thanksgiving Mass', date: DateTime(2025, 12, 31)),
+  ];
+
+  // In _ChurchCalendarPageState, add this helper to get all occasion dates for any year:
+  List<DateTime> _getOccasionDatesForYear(int year) {
+    return _occasions.map((reminder) {
+      // If the event is fixed (e.g., Dec 25), just change the year
+      return DateTime(year, reminder.date.month, reminder.date.day);
+    }).toList();
+  }
+
+  // Add this helper function to compute Easter Sunday for any year
+  DateTime _calculateEasterSunday(int year) {
+    int a = year % 19;
+    int b = year ~/ 100;
+    int c = year % 100;
+    int d = b ~/ 4;
+    int e = b % 4;
+    int f = (b + 8) ~/ 25;
+    int g = (b - f + 1) ~/ 3;
+    int h = (19 * a + b - d - g + 15) % 30;
+    int i = c ~/ 4;
+    int k = c % 4;
+    int l = (32 + 2 * e + 2 * i - h - k) % 7;
+    int m = (a + 11 * h + 22 * l) ~/ 451;
+    int month = (h + l - 7 * m + 114) ~/ 31;
+    int day = ((h + l - 7 * m + 114) % 31) + 1;
+    return DateTime(year, month, day);
+  }
+
+  // Add this helper to get all movable feasts for a given year
+  List<Reminder> _getMovableFeasts(int year) {
+    final easter = _calculateEasterSunday(year);
+    return [
+      Reminder(place: 'Tuy', event: 'Ash Wednesday', date: easter.subtract(Duration(days: 46))),
+      Reminder(place: 'Tuy', event: 'Palm Sunday', date: easter.subtract(Duration(days: 7))),
+      Reminder(place: 'Tuy', event: 'Holy Thursday', date: easter.subtract(Duration(days: 3))),
+      Reminder(place: 'Tuy', event: 'Good Friday', date: easter.subtract(Duration(days: 2))),
+      Reminder(place: 'Tuy', event: 'Black Saturday', date: easter.subtract(Duration(days: 1))),
+      Reminder(place: 'Tuy', event: 'Easter Sunday', date: easter),
+      Reminder(place: 'Tuy', event: 'Ascension of the Lord', date: easter.add(Duration(days: 39))),
+      Reminder(place: 'Tuy', event: 'Pentecost Sunday', date: easter.add(Duration(days: 49))),
+      Reminder(place: 'Tuy', event: 'Holy Trinity Sunday', date: easter.add(Duration(days: 56))),
+      Reminder(place: 'Tuy', event: 'Corpus Christi', date: easter.add(Duration(days: 60))),
+      // Add more movable feasts here if needed
+    ];
+  }
+
+  // Update _getEventsForDay to include both fixed and movable feasts for the selected year
+  List<Reminder> _getEventsForDay(DateTime day) {
+    // Fixed-date occasions (use month/day, any year)
+    final fixed = _occasions.where((reminder) =>
+      reminder.date.month == day.month &&
+      reminder.date.day == day.day
+    ).map((reminder) => Reminder(
+      place: reminder.place,
+      event: reminder.event,
+      date: DateTime(day.year, reminder.date.month, reminder.date.day),
+    ));
+    // Movable feasts for the year
+    final movable = _getMovableFeasts(day.year).where((reminder) =>
+      reminder.date.month == day.month &&
+      reminder.date.day == day.day
+    );
+    return [...fixed, ...movable];
+  }
+
+  // Helper to get days in a month
+  List<int> _daysInMonth(int year, int month) {
+    final lastDay = DateTime(year, month + 1, 0).day;
+    return List.generate(lastDay, (i) => i + 1);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: const Text(
+          'Church Calendar',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+        ),
+        actions: [
+          // Removed calendar icon
+        ],
+        backgroundColor: const Color(0xFF1565C0),
+        elevation: 0,
+      ),
+      backgroundColor: const Color(0xFFF5F6FA),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0, left: 8, right: 8),
+            child: TableCalendar(
+              firstDay: DateTime.utc(2000, 1, 1),
+              lastDay: DateTime.utc(2100, 12, 31),
+              focusedDay: _focusedDay,
+              selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+              onDaySelected: (selectedDay, focusedDay) {
+                setState(() {
+                  _selectedDay = selectedDay;
+                  _focusedDay = focusedDay;
+                });
+              },
+              calendarFormat: CalendarFormat.month,
+              eventLoader: (day) => _getEventsForDay(day),
+              headerStyle: HeaderStyle(
+                formatButtonVisible: false,
+                titleCentered: true,
+                leftChevronIcon: Icon(Icons.chevron_left, color: Colors.black54),
+                rightChevronIcon: Icon(Icons.chevron_right, color: Colors.black54),
+                titleTextFormatter: (date, locale) => '', // Remove default title
+              ),
+              daysOfWeekStyle: DaysOfWeekStyle(
+                weekdayStyle: TextStyle(color: Colors.black54),
+                weekendStyle: TextStyle(color: Colors.black54),
+              ),
+              calendarStyle: CalendarStyle(
+                todayDecoration: BoxDecoration(
+                  color: Color(0xFF1565C0).withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                selectedDecoration: BoxDecoration(
+                  color: Color(0xFF1565C0).withOpacity(0.5),
+                  shape: BoxShape.circle,
+                ),
+                defaultTextStyle: TextStyle(color: Colors.black87),
+                weekendTextStyle: TextStyle(color: Colors.black87),
+                markersMaxCount: 1,
+                markerDecoration: BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              calendarBuilders: CalendarBuilders(
+                markerBuilder: (context, date, events) {
+                  if (events.isNotEmpty) {
+                    return Positioned(
+                      bottom: 4,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: Container(
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                  return null;
+                },
+                headerTitleBuilder: (context, day) {
+                  final months = [
+                    'January', 'February', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'
+                  ];
+                  final years = List.generate(101, (i) => 2000 + i);
+                  final days = _daysInMonth(day.year, day.month);
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Custom month dropdown with closer label and arrow
+                      DropdownButton<int>(
+                        value: day.month,
+                        underline: SizedBox(),
+                        isDense: true,
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black),
+                        items: List.generate(12, (i) => DropdownMenuItem(
+                          value: i + 1,
+                          child: Text(months[i], style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+                        )),
+                        onChanged: (val) {
+                          if (val != null) {
+                            setState(() {
+                              _focusedDay = DateTime(_focusedDay.year, val, 1);
+                            });
+                          }
+                        },
+                      ),
+                      SizedBox(width: 8),
+                      DropdownButton<int>(
+                        value: day.year,
+                        underline: SizedBox(),
+                        items: years.map((y) => DropdownMenuItem(
+                          value: y,
+                          child: Text(y.toString(), style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+                        )).toList(),
+                        onChanged: (val) {
+                          if (val != null) {
+                            setState(() {
+                              _focusedDay = DateTime(val, _focusedDay.month, 1);
+                            });
+                          }
+                        },
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+          if (_selectedDay != null)
+            ..._getEventsForDay(_selectedDay!).map((reminder) => Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Card(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                elevation: 1,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: Colors.red[400],
+                        child: Icon(Icons.church, color: Colors.white),
+                      ),
+                      SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(reminder.event, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            SizedBox(height: 4),
+                            Text('Birth of Jesus Christ', style: TextStyle(color: Colors.black87)), // You can customize subtitle per event
+                            SizedBox(height: 2),
+                            Text('Church Occasion', style: TextStyle(color: Colors.grey)),
+                          ],
+                        ),
+                      ),
+                      Icon(Icons.repeat, color: Colors.orange[400]),
+                    ],
+                  ),
+                ),
+              ),
+            )),
+          const SizedBox(height: 24),
+          const Text(
+            'Select a day to view events',
+            style: TextStyle(color: Colors.black54, fontSize: 16),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+String _monthName(int month) {
+  const months = [
+    '', 'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+  return months[month];
+}
+
+class _CustomMonthYearPicker extends StatefulWidget {
+  final DateTime initialDate;
+  final DateTime firstDate;
+  final DateTime lastDate;
+  const _CustomMonthYearPicker({required this.initialDate, required this.firstDate, required this.lastDate});
+
+  @override
+  State<_CustomMonthYearPicker> createState() => _CustomMonthYearPickerState();
+}
+
+class _CustomMonthYearPickerState extends State<_CustomMonthYearPicker> {
+  late int selectedYear;
+  late int selectedMonth;
+  late int selectedDay;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedYear = widget.initialDate.year;
+    selectedMonth = widget.initialDate.month;
+    selectedDay = widget.initialDate.day;
+  }
+
+  List<int> _daysInMonth(int year, int month) {
+    final lastDay = DateTime(year, month + 1, 0).day;
+    return List.generate(lastDay, (i) => i + 1);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    final years = List.generate(widget.lastDate.year - widget.firstDate.year + 1, (i) => widget.firstDate.year + i);
+    final days = _daysInMonth(selectedYear, selectedMonth);
+    return AlertDialog(
+      title: Row(
+        children: [
+          DropdownButton<int>(
+            value: selectedMonth,
+            items: List.generate(12, (i) => DropdownMenuItem(
+              value: i + 1,
+              child: Text(months[i]),
+            )),
+            onChanged: (val) {
+              if (val != null) setState(() { selectedMonth = val; selectedDay = 1; });
+            },
+          ),
+          SizedBox(width: 8),
+          DropdownButton<int>(
+            value: selectedYear,
+            items: years.map((y) => DropdownMenuItem(value: y, child: Text(y.toString()))).toList(),
+            onChanged: (val) {
+              if (val != null) setState(() { selectedYear = val; selectedDay = 1; });
+            },
+          ),
+        ],
+      ),
+      content: SizedBox(
+        width: 300,
+        height: 220,
+        child: GridView.count(
+          crossAxisCount: 7,
+          children: days.map((d) => GestureDetector(
+            onTap: () => setState(() { selectedDay = d; }),
+            child: Container(
+              margin: EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: selectedDay == d ? Color(0xFF1565C0) : Colors.transparent,
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Text(
+                  d.toString(),
+                  style: TextStyle(
+                    color: selectedDay == d ? Colors.white : Colors.black,
+                    fontWeight: selectedDay == d ? FontWeight.bold : FontWeight.normal,
+                  ),
+                ),
+              ),
+            ),
+          )).toList(),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context, DateTime(selectedYear, selectedMonth, selectedDay));
+          },
+          child: Text('OK'),
+        ),
+      ],
     );
   }
 }
