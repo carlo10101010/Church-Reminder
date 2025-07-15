@@ -64,7 +64,7 @@ class _ListitemsState extends State<Listitems> {
         ),
         title: const Text(
           'Church Occasions',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+          style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.normal),
         ),
         backgroundColor: const Color(0xFF1565C0),
         elevation: 0,

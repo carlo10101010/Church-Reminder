@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:church_reminder/pages/Reminder.dart';
 import 'Itemcart.dart';
 
+// Static lists to persist data during app session
+final List<Reminder> _customReminders = [];
+final Map<String, bool> _customReminderStates = {};
+
 class CustomReminder extends StatefulWidget {
   const CustomReminder({super.key});
 
@@ -10,12 +14,10 @@ class CustomReminder extends StatefulWidget {
 }
 
 class _CustomReminderState extends State<CustomReminder> {
-  final List<Reminder> customReminders = [];
-  Map<String, bool> customReminderStates = {};
 
   void toggleCustomReminder(String eventName, bool value) {
     setState(() {
-      customReminderStates[eventName] = value;
+      _customReminderStates[eventName] = value;
     });
   }
 
@@ -23,12 +25,14 @@ class _CustomReminderState extends State<CustomReminder> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.blue,
         title: const Text(
           'Custom Reminder',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.normal),
         ),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: customReminders.isEmpty
+      body: _customReminders.isEmpty
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -58,10 +62,10 @@ class _CustomReminderState extends State<CustomReminder> {
               ),
             )
           : ListView(
-              children: customReminders.map((reminder) {
+              children: _customReminders.map((reminder) {
                 return Itemcart(
                   reminder: reminder,
-                  isEnabled: customReminderStates[reminder.event] ?? true,
+                  isEnabled: _customReminderStates[reminder.event] ?? true,
                   onToggle: (value) => toggleCustomReminder(reminder.event, value),
                 );
               }).toList(),
@@ -71,8 +75,8 @@ class _CustomReminderState extends State<CustomReminder> {
           final result = await Navigator.pushNamed(context, '/add');
           if (result != null && result is Reminder) {
             setState(() {
-              customReminders.add(result);
-              customReminderStates[result.event] = true;
+              _customReminders.add(result);
+              _customReminderStates[result.event] = true;
             });
           }
         },
