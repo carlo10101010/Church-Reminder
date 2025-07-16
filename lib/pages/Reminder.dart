@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../main.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class Reminder {
   final String place;
@@ -103,6 +106,30 @@ class _SundayReminderPageState extends State<SundayReminderPage> with TickerProv
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_reminderHourKey, reminderTime.hour);
     await prefs.setInt(_reminderMinuteKey, reminderTime.minute);
+    // Schedule weekly notification for Sunday
+    final now = DateTime.now();
+    final nextSunday = now.weekday == DateTime.sunday && (now.hour < reminderTime.hour || (now.hour == reminderTime.hour && now.minute < reminderTime.minute))
+      ? now
+      : now.add(Duration(days: (DateTime.sunday - now.weekday + 7) % 7));
+    final scheduledDate = DateTime(nextSunday.year, nextSunday.month, nextSunday.day, reminderTime.hour, reminderTime.minute);
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+      1001, // Unique ID for Sunday reminder
+      'Sunday Church Reminder',
+      'Time to attend church service!',
+      tz.TZDateTime.from(scheduledDate, tz.local),
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'reminder_channel',
+          'Reminders',
+          channelDescription: 'Channel for reminder notifications',
+          importance: Importance.max,
+          priority: Priority.high,
+        ),
+      ),
+      androidAllowWhileIdle: true,
+      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
+    );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Sunday reminder time saved!')),

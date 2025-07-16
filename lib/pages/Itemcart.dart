@@ -40,9 +40,11 @@ class Itemcart extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 24,
-              backgroundColor: isEnabled ? Color(0xFF263D9A) : Colors.grey[400],
+              backgroundColor: (eventDate.isBefore(now)) ? Colors.red : (isEnabled ? Color(0xFF263D9A) : Colors.grey[400]),
               child: Icon(
-                isEnabled ? Icons.calendar_today : Icons.event_busy,
+                eventDate.isBefore(now)
+                  ? Icons.close
+                  : (isEnabled ? Icons.calendar_today : Icons.event_busy),
                 color: Colors.white,
                 size: 28,
               ),
@@ -57,6 +59,7 @@ class Itemcart extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
+                      color: eventDate.isBefore(now) ? Colors.red : null,
                       decoration: isEnabled ? null : TextDecoration.lineThrough,
                     ),
                   ),
@@ -64,7 +67,7 @@ class Itemcart extends StatelessWidget {
                   Text(
                     '$formattedDate • $daysText',
                     style: TextStyle(
-                      color: Color(0xFF263D9A),
+                      color: eventDate.isBefore(now) ? Colors.red : Color(0xFF263D9A),
                       fontWeight: FontWeight.normal,
                     ),
                   ),
@@ -72,8 +75,8 @@ class Itemcart extends StatelessWidget {
               ),
             ),
             Switch(
-              value: isEnabled,
-              onChanged: onToggle,
+              value: eventDate.isBefore(now) ? false : isEnabled,
+              onChanged: eventDate.isBefore(now) ? null : onToggle,
               activeColor: Color(0xFF263D9A),
             ),
           ],

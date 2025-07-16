@@ -3,6 +3,7 @@ import 'package:church_reminder/pages/Reminder.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import '../main.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 Future<void> scheduleNotification({
   required int id,
@@ -22,6 +23,7 @@ Future<void> scheduleNotification({
         channelDescription: 'Channel for reminder notifications',
         importance: Importance.max,
         priority: Priority.high,
+        playSound: true,
       ),
     ),
     androidAllowWhileIdle: true,
@@ -243,18 +245,18 @@ class _AddreminderState extends State<Addreminder> {
                         _selectedTime!.minute,
                       ),
                     );
-                    // Schedule notification 2 minutes before
+                    // Schedule notification at the exact reminder time
                     final scheduledDate = DateTime(
                       _selectedDate!.year,
                       _selectedDate!.month,
                       _selectedDate!.day,
                       _selectedTime!.hour,
                       _selectedTime!.minute,
-                    ).subtract(const Duration(minutes: 2));
+                    );
                     await scheduleNotification(
                       id: newReminder.hashCode,
-                      title: 'Reminder:  {newReminder.event}',
-                      body: 'Your reminder is coming up soon!',
+                      title: 'Reminder: ${newReminder.event}',
+                      body: 'Your reminder is coming up now!',
                       scheduledDate: scheduledDate,
                     );
                     // Return the new reminder to the previous screen

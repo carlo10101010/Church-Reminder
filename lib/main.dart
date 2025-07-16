@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:permission_handler/permission_handler.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -22,6 +23,11 @@ void main() async {
   );
 
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+  // Request notification permission for Android 13+
+  if (await Permission.notification.isDenied) {
+    await Permission.notification.request();
+  }
 
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
