@@ -29,7 +29,7 @@ Future<void> scheduleNotification({
     androidAllowWhileIdle: true,
     uiLocalNotificationDateInterpretation:
         UILocalNotificationDateInterpretation.absoluteTime,
-    matchDateTimeComponents: DateTimeComponents.dateAndTime,
+    // Removed matchDateTimeComponents for one-off notification
   );
 }
 
@@ -62,220 +62,289 @@ class _AddreminderState extends State<Addreminder> {
       ),
       body: Container(
         margin: const EdgeInsets.all(20),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'AddReminder',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Title',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                    borderSide: const BorderSide(color: Colors.blue),
-                  ),
-                  floatingLabelStyle: const TextStyle(
-                    fontFamily: 'Roboto',
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue,
-                    fontStyle: FontStyle.italic,
-                  ),
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(
+                  'AddReminder',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
                 ),
-                onChanged: (value) => _title = value,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a title';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-              TextFormField(
-                readOnly: true,
-                decoration: InputDecoration(
-                  labelText: 'Date',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
+                TextFormField(
+                  decoration: InputDecoration(
+                    labelText: 'Title',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: const BorderSide(color: Colors.blue),
+                    ),
+                    floatingLabelStyle: const TextStyle(
+                      fontFamily: 'Roboto',
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
-                  suffixIcon: IconButton(
-                    icon: Icon(Icons.calendar_today, color: Colors.blue),
-                    onPressed: () async {
-                      final DateTime? picked = await showDatePicker(
-                        context: context,
-                        initialDate: _selectedDate ?? DateTime.now(),
-                        firstDate: DateTime.now(),
-                        lastDate: DateTime.now().add(Duration(days: 365)),
-                      );
-                      if (picked != null) {
-                        setState(() {
-                          _selectedDate = picked;
-                        });
-                      }
-                    },
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                    borderSide: const BorderSide(color: Colors.blue),
-                  ),
-                  floatingLabelStyle: const TextStyle(
-                    fontFamily: 'Roboto',
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue,
-                    fontStyle: FontStyle.italic,
-                  ),
+                  onChanged: (value) => _title = value,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a title';
+                    }
+                    return null;
+                  },
                 ),
-                controller: TextEditingController(
-                  text: _selectedDate == null
-                      ? ''
-                      : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
-                ),
-                onTap: () async {
-                  final DateTime? picked = await showDatePicker(
-                    context: context,
-                    initialDate: _selectedDate ?? DateTime.now(),
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime.now().add(Duration(days: 365)),
-                  );
-                  if (picked != null) {
-                    setState(() {
-                      _selectedDate = picked;
-                    });
-                  }
-                },
-                validator: (value) {
-                  if (_selectedDate == null) {
-                    return 'Please select a date';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-              // Time Picker
-              TextFormField(
-                readOnly: true,
-                decoration: InputDecoration(
-                  labelText: 'Time',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
+                const SizedBox(height: 20),
+                TextFormField(
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    labelText: 'Date',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.calendar_today, color: Colors.blue),
+                      onPressed: () async {
+                        final DateTime? picked = await showDatePicker(
+                          context: context,
+                          initialDate: _selectedDate ?? DateTime.now(),
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime.now().add(Duration(days: 365)),
+                        );
+                        if (picked != null) {
+                          setState(() {
+                            _selectedDate = picked;
+                          });
+                        }
+                      },
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: const BorderSide(color: Colors.blue),
+                    ),
+                    floatingLabelStyle: const TextStyle(
+                      fontFamily: 'Roboto',
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
-                  suffixIcon: IconButton(
-                    icon: Icon(Icons.access_time, color: Colors.blue),
-                    onPressed: () async {
-                      final TimeOfDay? picked = await showTimePicker(
-                        context: context,
-                        initialTime: _selectedTime ?? TimeOfDay.now(),
-                      );
-                      if (picked != null) {
-                        setState(() {
-                          _selectedTime = picked;
-                        });
-                      }
-                    },
+                  controller: TextEditingController(
+                    text: _selectedDate == null
+                        ? ''
+                        : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                    borderSide: const BorderSide(color: Colors.blue),
-                  ),
-                  floatingLabelStyle: const TextStyle(
-                    fontFamily: 'Roboto',
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-                controller: TextEditingController(
-                  text: _selectedTime == null
-                      ? ''
-                      : _selectedTime!.format(context),
-                ),
-                onTap: () async {
-                  final TimeOfDay? picked = await showTimePicker(
-                    context: context,
-                    initialTime: _selectedTime ?? TimeOfDay.now(),
-                  );
-                  if (picked != null) {
-                    setState(() {
-                      _selectedTime = picked;
-                    });
-                  }
-                },
-                validator: (value) {
-                  if (_selectedTime == null) {
-                    return 'Please select a time';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
+                  onTap: () async {
+                    final DateTime? picked = await showDatePicker(
+                      context: context,
+                      initialDate: _selectedDate ?? DateTime.now(),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(Duration(days: 365)),
+                    );
+                    if (picked != null) {
+                      setState(() {
+                        _selectedDate = picked;
+                      });
+                    }
+                  },
+                  validator: (value) {
                     if (_selectedDate == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Please select a date')),
-                      );
-                      return;
+                      return 'Please select a date';
                     }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20),
+                // Time Picker
+                TextFormField(
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    labelText: 'Time',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.access_time, color: Colors.blue),
+                      onPressed: () async {
+                        final TimeOfDay? picked = await showTimePicker(
+                          context: context,
+                          initialTime: _selectedTime ?? TimeOfDay.now(),
+                        );
+                        if (picked != null) {
+                          setState(() {
+                            _selectedTime = picked;
+                          });
+                        }
+                      },
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: const BorderSide(color: Colors.blue),
+                    ),
+                    floatingLabelStyle: const TextStyle(
+                      fontFamily: 'Roboto',
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                  controller: TextEditingController(
+                    text: _selectedTime == null
+                        ? ''
+                        : _selectedTime!.format(context),
+                  ),
+                  onTap: () async {
+                    final TimeOfDay? picked = await showTimePicker(
+                      context: context,
+                      initialTime: _selectedTime ?? TimeOfDay.now(),
+                    );
+                    if (picked != null) {
+                      setState(() {
+                        _selectedTime = picked;
+                      });
+                    }
+                  },
+                  validator: (value) {
                     if (_selectedTime == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Please select a time')),
-                      );
-                      return;
+                      return 'Please select a time';
                     }
-                    // Create a new Reminder object
-                    final newReminder = Reminder(
-                      place: '',
-                      event: _title,
-                      date: DateTime(
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 30),
+                // Send Test Notification Button
+                ElevatedButton(
+                  onPressed: () async {
+                    await flutterLocalNotificationsPlugin.show(
+                      0,
+                      'Test Notification',
+                      'This is a test',
+                      const NotificationDetails(
+                        android: AndroidNotificationDetails(
+                          'reminder_channel',
+                          'Reminders',
+                          channelDescription: 'Channel for reminder notifications',
+                          importance: Importance.max,
+                          priority: Priority.high,
+                          playSound: true,
+                        ),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Send Test Notification',
+                    style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () async {
+                    final now = DateTime.now();
+                    final scheduledDate = now.add(Duration(minutes: 1));
+                    print('Scheduling 1-minute test notification for: ' + scheduledDate.toString());
+                    await scheduleNotification(
+                      id: 9999,
+                      title: '1-Minute Test Notification',
+                      body: 'This is a scheduled test notification.',
+                      scheduledDate: scheduledDate,
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Scheduled notification for 1 minute from now.')),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Schedule 1-Minute Test Notification',
+                    style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      if (_selectedDate == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Please select a date')),
+                        );
+                        return;
+                      }
+                      if (_selectedTime == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Please select a time')),
+                        );
+                        return;
+                      }
+                      // Create a new Reminder object
+                      final newReminder = Reminder(
+                        place: '',
+                        event: _title,
+                        date: DateTime(
+                          _selectedDate!.year,
+                          _selectedDate!.month,
+                          _selectedDate!.day,
+                          _selectedTime!.hour,
+                          _selectedTime!.minute,
+                        ),
+                      );
+                      // Schedule notification at the exact reminder time
+                      final scheduledDate = DateTime(
                         _selectedDate!.year,
                         _selectedDate!.month,
                         _selectedDate!.day,
                         _selectedTime!.hour,
                         _selectedTime!.minute,
-                      ),
-                    );
-                    // Schedule notification at the exact reminder time
-                    final scheduledDate = DateTime(
-                      _selectedDate!.year,
-                      _selectedDate!.month,
-                      _selectedDate!.day,
-                      _selectedTime!.hour,
-                      _selectedTime!.minute,
-                    );
-                    await scheduleNotification(
-                      id: newReminder.hashCode,
-                      title: 'Reminder: ${newReminder.event}',
-                      body: 'Your reminder is coming up now!',
-                      scheduledDate: scheduledDate,
-                    );
-                    // Return the new reminder to the previous screen
-                    Navigator.pop(context, newReminder);
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                      );
+                      print('Scheduled notification for: ' + scheduledDate.toString());
+                      print('Current time: ' + DateTime.now().toString());
+                      if (scheduledDate.isBefore(DateTime.now())) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Selected date and time is in the past. Please choose a future time.')),
+                        );
+                        return;
+                      }
+                      await scheduleNotification(
+                        id: newReminder.hashCode,
+                        title: 'Reminder: ${newReminder.event}',
+                        body: 'Your reminder is coming up now!',
+                        scheduledDate: scheduledDate,
+                      );
+                      // Return the new reminder to the previous screen
+                      Navigator.pop(context, newReminder);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Add Reminder',
+                    style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
-                child: const Text(
-                  'Add Reminder',
-                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
