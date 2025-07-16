@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'Addreminder.dart';
 import 'Reminder.dart';
-import 'dart:async'; // Added for Timer
+import 'dart:async'; 
 import 'package:table_calendar/table_calendar.dart';
 import 'ListItems.dart';
 
@@ -223,11 +223,70 @@ class _DashboardState extends State<Dashboard> {
                   date: 'Dec 31, Wed',
                   daysLeftText: _daysLeftText(_parseEventDate('Dec 31, Wed')),
                 ),
+                SizedBox(height: 20), // Extra space after last occasion
+                // Sunday Church Reminder card with green notification bell (scrolls with content)
+                FutureBuilder<TimeOfDay>(
+                  future: SundayReminderPage.getSavedReminderTime(),
+                  builder: (context, snapshot) {
+                    final time = snapshot.data ?? TimeOfDay(hour: 6, minute: 30);
+                    String formattedTime = _formatTimeOfDay(time);
+                    return Card(
+                      elevation: 0,
+                      margin: EdgeInsets.only(bottom: 12),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: Color(0xFF43A047),
+                          radius: 22,
+                          child: Icon(Icons.notifications_active, color: Colors.white, size: 28),
+                        ),
+                        title: Text(
+                          'Sunday Church Reminder',
+                          style: TextStyle(fontWeight: FontWeight.normal),
+                        ),
+                        subtitle: Text('Every Sunday at $formattedTime'),
+                        trailing: Icon(Icons.arrow_forward_ios, size: 16),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => SundayReminderPage()),
+                          ).then((_) => setState(() {}));
+                        },
+                      ),
+                    );
+                  },
+                ),
               ],
             ),
           ),
         ),
       ),
+      // Add Sunday Church Reminder card after the scrollable content
+      // bottomNavigationBar: Padding(
+      //   padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+      //   child: Card(
+      //     elevation: 0,
+      //     margin: EdgeInsets.zero,
+      //     child: ListTile(
+      //       leading: CircleAvatar(
+      //         backgroundColor: Colors.green[800],
+      //         radius: 22,
+      //         child: Icon(Icons.notifications, color: Colors.white, size: 28),
+      //       ),
+      //       title: Text(
+      //         'Sunday Church Reminder',
+      //         style: TextStyle(fontWeight: FontWeight.normal),
+      //       ),
+      //       subtitle: Text('Every Sunday at 6:30 AM'),
+      //       trailing: Icon(Icons.arrow_forward_ios, size: 16),
+      //       onTap: () {
+      //         Navigator.push(
+      //           context,
+      //           MaterialPageRoute(builder: (context) => SundayReminderPage()),
+      //         );
+      //       },
+      //     ),
+      //   ),
+      // ),
     );
   }
 }
@@ -758,4 +817,11 @@ class _CustomMonthYearPickerState extends State<_CustomMonthYearPicker> {
       ],
     );
   }
+}
+
+String _formatTimeOfDay(TimeOfDay time) {
+  final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
+  final minute = time.minute.toString().padLeft(2, '0');
+  final period = time.period == DayPeriod.am ? 'AM' : 'PM';
+  return '$hour:$minute $period';
 }

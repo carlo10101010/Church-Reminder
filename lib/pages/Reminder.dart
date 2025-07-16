@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Reminder {
   final String place;
@@ -13,11 +14,21 @@ class SundayReminderPage extends StatefulWidget {
 
   @override
   State<SundayReminderPage> createState() => _SundayReminderPageState();
+
+  static Future<TimeOfDay> getSavedReminderTime() async {
+    final prefs = await SharedPreferences.getInstance();
+    final hour = prefs.getInt(_SundayReminderPageState._reminderHourKey) ?? 6;
+    final minute = prefs.getInt(_SundayReminderPageState._reminderMinuteKey) ?? 30;
+    return TimeOfDay(hour: hour, minute: minute);
+  }
 }
 
 class _SundayReminderPageState extends State<SundayReminderPage> with TickerProviderStateMixin {
   bool isReminderEnabled = true;
   TimeOfDay reminderTime = const TimeOfDay(hour: 6, minute: 30);
+
+  static const String _reminderHourKey = 'sunday_reminder_hour';
+  static const String _reminderMinuteKey = 'sunday_reminder_minute';
 
   // Controllers for horizontal scroll animations
   final ScrollController _frequencyController = ScrollController();
@@ -35,6 +46,7 @@ class _SundayReminderPageState extends State<SundayReminderPage> with TickerProv
     _notificationAnim = AnimationController(vsync: this, duration: const Duration(seconds: 2));
     _noteAnim = AnimationController(vsync: this, duration: const Duration(seconds: 2));
     WidgetsBinding.instance.addPostFrameCallback((_) => _startAutoScrolls());
+    _loadSavedTime();
   }
 
   void _startAutoScrolls() {
@@ -73,6 +85,28 @@ class _SundayReminderPageState extends State<SundayReminderPage> with TickerProv
       setState(() {
         reminderTime = picked;
       });
+    }
+  }
+
+  Future<void> _loadSavedTime() async {
+    final prefs = await SharedPreferences.getInstance();
+    final hour = prefs.getInt(_reminderHourKey);
+    final minute = prefs.getInt(_reminderMinuteKey);
+    if (hour != null && minute != null) {
+      setState(() {
+        reminderTime = TimeOfDay(hour: hour, minute: minute);
+      });
+    }
+  }
+
+  Future<void> _saveTime() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_reminderHourKey, reminderTime.hour);
+    await prefs.setInt(_reminderMinuteKey, reminderTime.minute);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Sunday reminder time saved!')),
+      );
     }
   }
 
@@ -272,6 +306,26 @@ class _SundayReminderPageState extends State<SundayReminderPage> with TickerProv
           ],
         ),
       ),
+      bottomNavigationBar: isReminderEnabled ? Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+        child: SizedBox(
+          width: double.infinity,
+          height: 54,
+          child: ElevatedButton.icon(
+            onPressed: _saveTime,
+            icon: Icon(Icons.save, color: Colors.white),
+            label: Text('Save Sunday Reminder', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xFF1565C0),
+              foregroundColor: Colors.white,
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ),
+      ) : null,
     );
   }
 }
