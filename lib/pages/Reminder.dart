@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class Reminder {
   final String place;
@@ -42,6 +43,8 @@ class _SundayReminderPageState extends State<SundayReminderPage> with TickerProv
   late AnimationController _notificationAnim;
   late AnimationController _noteAnim;
 
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
   @override
   void initState() {
     super.initState();
@@ -50,6 +53,7 @@ class _SundayReminderPageState extends State<SundayReminderPage> with TickerProv
     _noteAnim = AnimationController(vsync: this, duration: const Duration(seconds: 2));
     WidgetsBinding.instance.addPostFrameCallback((_) => _startAutoScrolls());
     _loadSavedTime();
+    _startReminderChecker();
   }
 
   void _startAutoScrolls() {
@@ -77,6 +81,26 @@ class _SundayReminderPageState extends State<SundayReminderPage> with TickerProv
         );
       }
     }
+  }
+
+  void _startReminderChecker() {
+    // Check every 30 seconds if it's time to play the alert (while app is open)
+    Future.doWhile(() async {
+      await Future.delayed(const Duration(seconds: 30));
+      if (!mounted || !isReminderEnabled) return false;
+      final now = DateTime.now();
+      if (now.weekday == DateTime.sunday &&
+          now.hour == reminderTime.hour &&
+          now.minute == reminderTime.minute &&
+          now.second < 30) {
+        _playAlertSound();
+      }
+      return mounted;
+    });
+  }
+
+  Future<void> _playAlertSound() async {
+    await _audioPlayer.play(AssetSource('alarmmm.mp3'));
   }
 
   Future<void> _pickTime() async {
@@ -152,6 +176,7 @@ class _SundayReminderPageState extends State<SundayReminderPage> with TickerProv
     _frequencyAnim.dispose();
     _notificationAnim.dispose();
     _noteAnim.dispose();
+    _audioPlayer.dispose();
     super.dispose();
   }
 

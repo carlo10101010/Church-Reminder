@@ -253,12 +253,20 @@ class _AddreminderState extends State<Addreminder> {
                       _selectedTime!.hour,
                       _selectedTime!.minute,
                     );
-                    await scheduleNotification(
-                      id: newReminder.hashCode,
-                      title: 'Reminder: ${newReminder.event}',
-                      body: 'Your reminder is coming up now!',
-                      scheduledDate: scheduledDate,
-                    );
+                    bool notificationScheduled = true;
+                    try {
+                      await scheduleNotification(
+                        id: newReminder.hashCode,
+                        title: 'Reminder:  {newReminder.event}',
+                        body: 'Your reminder is coming up now!',
+                        scheduledDate: scheduledDate,
+                      );
+                    } catch (e) {
+                      notificationScheduled = false;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Reminder added, but notification may not work on this device.')),
+                      );
+                    }
                     // Return the new reminder to the previous screen
                     Navigator.pop(context, newReminder);
                   }
