@@ -68,7 +68,7 @@ class Itemcart extends StatelessWidget {
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: shouldApplyPastStyling ? Colors.grey[600] : null,
-                      decoration: shouldApplyPastStyling || !isEnabled ? TextDecoration.lineThrough : null,
+                      decoration: !isEnabled ? TextDecoration.lineThrough : null,
                     ),
                   ),
                   SizedBox(height: 6),
@@ -77,7 +77,7 @@ class Itemcart extends StatelessWidget {
                     style: TextStyle(
                       color: shouldApplyPastStyling ? Colors.grey[500] : Color(0xFF263D9A),
                       fontWeight: FontWeight.normal,
-                      decoration: shouldApplyPastStyling ? TextDecoration.lineThrough : null,
+                      decoration: !isEnabled ? TextDecoration.lineThrough : null,
                     ),
                   ),
                 ],

@@ -437,42 +437,48 @@ class _ChurchCalendarPageState extends State<ChurchCalendarPage> {
   @override
   void initState() {
     super.initState();
-    _generateOccasionsForCurrentYear();
+    // No need to generate occasions anymore - they're generated dynamically per year
   }
 
   void _generateOccasionsForCurrentYear() {
-    final currentYear = DateTime.now().year;
-    final easter = _calculateEasterSunday(currentYear);
-    
-    _occasions = [
-      // Fixed date occasions
-      Reminder(place: '', event: 'Solemnity of Mary, Mother of God', date: DateTime(currentYear, 1, 1), description: 'Mother of God Celebration'),
-      Reminder(place: '', event: 'Epiphany of the Lord', date: DateTime(currentYear, 1, 7), description: 'Manifestation of Christ'),
-      Reminder(place: '', event: 'Baptism of the Lord', date: DateTime(currentYear, 1, 12), description: 'Jesus\' Baptism'),
-      Reminder(place: '', event: 'Presentation of the Lord', date: DateTime(currentYear, 2, 2), description: 'Candlemas Day'),
-      Reminder(place: '', event: 'St. Joseph, Husband of Mary', date: DateTime(currentYear, 3, 19), description: 'Patron of the Universal Church'),
-      Reminder(place: '', event: 'Sacred Heart of Jesus', date: DateTime(currentYear, 6, 13), description: 'Divine Love Celebration'),
-      Reminder(place: '', event: 'Saints Peter and Paul', date: DateTime(currentYear, 6, 29), description: 'Apostles\' Feast'),
-      Reminder(place: '', event: 'Assumption of Mary', date: DateTime(currentYear, 8, 15), description: 'Mary\'s Heavenly Assumption'),
-      Reminder(place: '', event: 'All Saints\' Day', date: DateTime(currentYear, 11, 1), description: 'Celebration of All Saints'),
-      Reminder(place: '', event: 'All Souls\' Day', date: DateTime(currentYear, 11, 2), description: 'Prayer for the Faithful Departed'),
-      Reminder(place: '', event: 'Christ the King', date: DateTime(currentYear, 11, 23), description: 'Sovereignty of Christ'),
-      Reminder(place: '', event: 'Immaculate Conception', date: DateTime(currentYear, 12, 8), description: 'Mary\'s Sinless Conception'),
-      Reminder(place: '', event: 'Simbang Gabi (Dawn Masses)', date: DateTime(currentYear, 12, 16), description: 'Filipino Christmas Tradition'),
-      Reminder(place: '', event: 'Christmas Day', date: DateTime(currentYear, 12, 25), description: 'Birth of Jesus Christ'),
-      Reminder(place: '', event: 'New Year\'s Eve Thanksgiving Mass', date: DateTime(currentYear, 12, 31), description: 'Year-End Thanksgiving'),
-      
-      // Movable feasts (Easter-based)
-      Reminder(place: '', event: 'Ash Wednesday', date: easter.subtract(Duration(days: 46)), description: 'Beginning of Lent'),
-      Reminder(place: '', event: 'Palm Sunday', date: easter.subtract(Duration(days: 7)), description: 'Jesus\' Triumphal Entry'),
-      Reminder(place: '', event: 'Holy Thursday', date: easter.subtract(Duration(days: 3)), description: 'Last Supper Celebration'),
-      Reminder(place: '', event: 'Good Friday', date: easter.subtract(Duration(days: 2)), description: 'Crucifixion of Jesus'),
-      Reminder(place: '', event: 'Black Saturday', date: easter.subtract(Duration(days: 1)), description: 'Jesus in the Tomb'),
-      Reminder(place: '', event: 'Easter Sunday', date: easter, description: 'Resurrection of Jesus'),
-      Reminder(place: '', event: 'Ascension of the Lord', date: easter.add(Duration(days: 39)), description: 'Jesus Ascends to Heaven'),
-      Reminder(place: '', event: 'Pentecost Sunday', date: easter.add(Duration(days: 49)), description: 'Descent of the Holy Spirit'),
-      Reminder(place: '', event: 'Holy Trinity Sunday', date: easter.add(Duration(days: 56)), description: 'Father, Son, and Holy Spirit'),
-      Reminder(place: '', event: 'Corpus Christi', date: easter.add(Duration(days: 60)), description: 'Body and Blood of Christ'),
+    // This method is now deprecated - we'll use _getFixedFeasts and _getMovableFeasts instead
+    _occasions = [];
+  }
+
+  // Get fixed date occasions for any year
+  List<Reminder> _getFixedFeasts(int year) {
+    return [
+      Reminder(place: '', event: 'Solemnity of Mary, Mother of God', date: DateTime(year, 1, 1), description: 'Mother of God Celebration'),
+      Reminder(place: '', event: 'Epiphany of the Lord', date: DateTime(year, 1, 7), description: 'Manifestation of Christ'),
+      Reminder(place: '', event: 'Baptism of the Lord', date: DateTime(year, 1, 12), description: 'Jesus\' Baptism'),
+      Reminder(place: '', event: 'Presentation of the Lord', date: DateTime(year, 2, 2), description: 'Candlemas Day'),
+      Reminder(place: '', event: 'St. Joseph, Husband of Mary', date: DateTime(year, 3, 19), description: 'Patron of the Universal Church'),
+      Reminder(place: '', event: 'Sacred Heart of Jesus', date: DateTime(year, 6, 13), description: 'Divine Love Celebration'),
+      Reminder(place: '', event: 'Saints Peter and Paul', date: DateTime(year, 6, 29), description: 'Apostles\' Feast'),
+      Reminder(place: '', event: 'Assumption of Mary', date: DateTime(year, 8, 15), description: 'Mary\'s Heavenly Assumption'),
+      Reminder(place: '', event: 'All Saints\' Day', date: DateTime(year, 11, 1), description: 'Celebration of All Saints'),
+      Reminder(place: '', event: 'All Souls\' Day', date: DateTime(year, 11, 2), description: 'Prayer for the Faithful Departed'),
+      Reminder(place: '', event: 'Christ the King', date: DateTime(year, 11, 23), description: 'Sovereignty of Christ'),
+      Reminder(place: '', event: 'Immaculate Conception', date: DateTime(year, 12, 8), description: 'Mary\'s Sinless Conception'),
+      Reminder(place: '', event: 'Simbang Gabi (Dawn Masses)', date: DateTime(year, 12, 16), description: 'Filipino Christmas Tradition'),
+      Reminder(place: '', event: 'Christmas Day', date: DateTime(year, 12, 25), description: 'Birth of Jesus Christ'),
+      Reminder(place: '', event: 'New Year\'s Eve Thanksgiving Mass', date: DateTime(year, 12, 31), description: 'Year-End Thanksgiving'),
+      // Additional Filipino Church occasions
+      Reminder(place: '', event: 'Feast of the Black Nazarene', date: DateTime(year, 1, 9), description: 'Quiapo Church Celebration'),
+      Reminder(place: '', event: 'Feast of Santo Niño', date: DateTime(year, 1, 20), description: 'Child Jesus Celebration'),
+      Reminder(place: '', event: 'Feast of Our Lady of Lourdes', date: DateTime(year, 2, 11), description: 'Marian Apparition'),
+      Reminder(place: '', event: 'Feast of St. Patrick', date: DateTime(year, 3, 17), description: 'Patron Saint of Ireland'),
+      Reminder(place: '', event: 'Feast of St. Mark', date: DateTime(year, 4, 25), description: 'Evangelist Feast'),
+      Reminder(place: '', event: 'Feast of St. Philip and St. James', date: DateTime(year, 5, 3), description: 'Apostles\' Feast'),
+      Reminder(place: '', event: 'Feast of St. Matthias', date: DateTime(year, 5, 14), description: 'Apostle Feast'),
+      Reminder(place: '', event: 'Feast of St. Barnabas', date: DateTime(year, 6, 11), description: 'Apostle Feast'),
+      Reminder(place: '', event: 'Feast of St. James', date: DateTime(year, 7, 25), description: 'Apostle Feast'),
+      Reminder(place: '', event: 'Feast of St. Bartholomew', date: DateTime(year, 8, 24), description: 'Apostle Feast'),
+      Reminder(place: '', event: 'Feast of St. Matthew', date: DateTime(year, 9, 21), description: 'Evangelist Feast'),
+      Reminder(place: '', event: 'Feast of St. Luke', date: DateTime(year, 10, 18), description: 'Evangelist Feast'),
+      Reminder(place: '', event: 'Feast of St. Simon and St. Jude', date: DateTime(year, 10, 28), description: 'Apostles\' Feast'),
+      Reminder(place: '', event: 'Feast of St. Andrew', date: DateTime(year, 11, 30), description: 'Apostle Feast'),
+      Reminder(place: '', event: 'Feast of St. John', date: DateTime(year, 12, 27), description: 'Evangelist Feast'),
     ];
   }
 
@@ -529,18 +535,42 @@ class _ChurchCalendarPageState extends State<ChurchCalendarPage> {
         return 'Father, Son, and Holy Spirit';
       case 'Corpus Christi':
         return 'Body and Blood of Christ';
+      case 'Feast of the Black Nazarene':
+        return 'Quiapo Church Celebration';
+      case 'Feast of Santo Niño':
+        return 'Child Jesus Celebration';
+      case 'Feast of Our Lady of Lourdes':
+        return 'Marian Apparition';
+      case 'Feast of St. Patrick':
+        return 'Patron Saint of Ireland';
+      case 'Feast of St. Mark':
+        return 'Evangelist Feast';
+      case 'Feast of St. Philip and St. James':
+        return 'Apostles\' Feast';
+      case 'Feast of St. Matthias':
+        return 'Apostle Feast';
+      case 'Feast of St. Barnabas':
+        return 'Apostle Feast';
+      case 'Feast of St. James':
+        return 'Apostle Feast';
+      case 'Feast of St. Bartholomew':
+        return 'Apostle Feast';
+      case 'Feast of St. Matthew':
+        return 'Evangelist Feast';
+      case 'Feast of St. Luke':
+        return 'Evangelist Feast';
+      case 'Feast of St. Simon and St. Jude':
+        return 'Apostles\' Feast';
+      case 'Feast of St. Andrew':
+        return 'Apostle Feast';
+      case 'Feast of St. John':
+        return 'Evangelist Feast';
       default:
         return 'Church Occasion';
     }
   }
 
-  // In _ChurchCalendarPageState, add this helper to get all occasion dates for any year:
-  List<DateTime> _getOccasionDatesForYear(int year) {
-    return _occasions.map((reminder) {
-      // If the event is fixed (e.g., Dec 25), just change the year
-      return DateTime(year, reminder.date.month, reminder.date.day);
-    }).toList();
-  }
+
 
   // Add this helper function to compute Easter Sunday for any year
   DateTime _calculateEasterSunday(int year) {
@@ -561,40 +591,55 @@ class _ChurchCalendarPageState extends State<ChurchCalendarPage> {
     return DateTime(year, month, day);
   }
 
+  // Get all occasions (fixed + movable) for a specific year
+  List<Reminder> _getAllOccasionsForYear(int year) {
+    final fixed = _getFixedFeasts(year);
+    final movable = _getMovableFeasts(year);
+    return [...fixed, ...movable];
+  }
+
+  // Test method to verify Easter calculation for different years
+  void _testEasterCalculation() {
+    // Test Easter dates for different years
+    final testYears = [2023, 2024, 2025, 2026, 2027];
+    for (int year in testYears) {
+      final easter = _calculateEasterSunday(year);
+      print('Easter Sunday $year: ${easter.day}/${easter.month}/${easter.year}');
+    }
+  }
+
   // Add this helper to get all movable feasts for a given year
   List<Reminder> _getMovableFeasts(int year) {
     final easter = _calculateEasterSunday(year);
     return [
-      Reminder(place: '', event: 'Ash Wednesday', date: easter.subtract(Duration(days: 46))),
-      Reminder(place: '', event: 'Palm Sunday', date: easter.subtract(Duration(days: 7))),
-      Reminder(place: '', event: 'Holy Thursday', date: easter.subtract(Duration(days: 3))),
-      Reminder(place: '', event: 'Good Friday', date: easter.subtract(Duration(days: 2))),
-      Reminder(place: '', event: 'Black Saturday', date: easter.subtract(Duration(days: 1))),
-      Reminder(place: '', event: 'Easter Sunday', date: easter),
-      Reminder(place: '', event: 'Ascension of the Lord', date: easter.add(Duration(days: 39))),
-      Reminder(place: '', event: 'Pentecost Sunday', date: easter.add(Duration(days: 49))),
-      Reminder(place: '', event: 'Holy Trinity Sunday', date: easter.add(Duration(days: 56))),
-      Reminder(place: '', event: 'Corpus Christi', date: easter.add(Duration(days: 60))),
+      Reminder(place: '', event: 'Ash Wednesday', date: easter.subtract(Duration(days: 46)), description: 'Beginning of Lent'),
+      Reminder(place: '', event: 'Palm Sunday', date: easter.subtract(Duration(days: 7)), description: 'Jesus\' Triumphal Entry'),
+      Reminder(place: '', event: 'Holy Thursday', date: easter.subtract(Duration(days: 3)), description: 'Last Supper Celebration'),
+      Reminder(place: '', event: 'Good Friday', date: easter.subtract(Duration(days: 2)), description: 'Crucifixion of Jesus'),
+      Reminder(place: '', event: 'Black Saturday', date: easter.subtract(Duration(days: 1)), description: 'Jesus in the Tomb'),
+      Reminder(place: '', event: 'Easter Sunday', date: easter, description: 'Resurrection of Jesus'),
+      Reminder(place: '', event: 'Ascension of the Lord', date: easter.add(Duration(days: 39)), description: 'Jesus Ascends to Heaven'),
+      Reminder(place: '', event: 'Pentecost Sunday', date: easter.add(Duration(days: 49)), description: 'Descent of the Holy Spirit'),
+      Reminder(place: '', event: 'Holy Trinity Sunday', date: easter.add(Duration(days: 56)), description: 'Father, Son, and Holy Spirit'),
+      Reminder(place: '', event: 'Corpus Christi', date: easter.add(Duration(days: 60)), description: 'Body and Blood of Christ'),
       // Add more movable feasts here if needed
     ];
   }
 
   // Update _getEventsForDay to include both fixed and movable feasts for the selected year
   List<Reminder> _getEventsForDay(DateTime day) {
-    // Fixed-date occasions (use month/day, any year)
-    final fixed = _occasions.where((reminder) =>
+    // Fixed-date occasions for the specific year
+    final fixed = _getFixedFeasts(day.year).where((reminder) =>
       reminder.date.month == day.month &&
       reminder.date.day == day.day
-    ).map((reminder) => Reminder(
-      place: reminder.place,
-      event: reminder.event,
-      date: DateTime(day.year, reminder.date.month, reminder.date.day),
-    ));
+    );
+    
     // Movable feasts for the year
     final movable = _getMovableFeasts(day.year).where((reminder) =>
       reminder.date.month == day.month &&
       reminder.date.day == day.day
     );
+    
     return [...fixed, ...movable];
   }
 
@@ -713,6 +758,7 @@ class _ChurchCalendarPageState extends State<ChurchCalendarPage> {
                           if (val != null) {
                             setState(() {
                               _focusedDay = DateTime(_focusedDay.year, val, 1);
+                              _selectedDay = null; // Clear selection when month changes
                             });
                           }
                         },
@@ -729,6 +775,7 @@ class _ChurchCalendarPageState extends State<ChurchCalendarPage> {
                           if (val != null) {
                             setState(() {
                               _focusedDay = DateTime(val, _focusedDay.month, 1);
+                              _selectedDay = null; // Clear selection when year changes
                             });
                           }
                         },
