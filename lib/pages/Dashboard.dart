@@ -432,34 +432,107 @@ class ChurchCalendarPage extends StatefulWidget {
 class _ChurchCalendarPageState extends State<ChurchCalendarPage> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
+  late List<Reminder> _occasions;
 
-  final List<Reminder> _occasions = [
-    Reminder(place: 'Tuy', event: 'Solemnity of Mary, Mother of God', date: DateTime(2025, 1, 1)),
-    Reminder(place: 'Tuy', event: 'Epiphany of the Lord', date: DateTime(2025, 1, 7)),
-    Reminder(place: 'Tuy', event: 'Baptism of the Lord', date: DateTime(2025, 1, 12)),
-    Reminder(place: 'Tuy', event: 'Presentation of the Lord', date: DateTime(2025, 2, 2)),
-    Reminder(place: 'Tuy', event: 'Ash Wednesday', date: DateTime(2025, 2, 26)),
-    Reminder(place: 'Tuy', event: 'St. Joseph, Husband of Mary', date: DateTime(2025, 3, 19)),
-    Reminder(place: 'Tuy', event: 'Palm Sunday', date: DateTime(2025, 3, 30)),
-    Reminder(place: 'Tuy', event: 'Holy Thursday', date: DateTime(2025, 4, 3)),
-    Reminder(place: 'Tuy', event: 'Good Friday', date: DateTime(2025, 4, 4)),
-    Reminder(place: 'Tuy', event: 'Black Saturday', date: DateTime(2025, 4, 5)),
-    Reminder(place: 'Tuy', event: 'Easter Sunday', date: DateTime(2025, 4, 6)),
-    Reminder(place: 'Tuy', event: 'Ascension of the Lord', date: DateTime(2025, 5, 11)),
-    Reminder(place: 'Tuy', event: 'Pentecost Sunday', date: DateTime(2025, 5, 18)),
-    Reminder(place: 'Tuy', event: 'Holy Trinity Sunday', date: DateTime(2025, 5, 25)),
-    Reminder(place: 'Tuy', event: 'Corpus Christi', date: DateTime(2025, 6, 1)),
-    Reminder(place: 'Tuy', event: 'Sacred Heart of Jesus', date: DateTime(2025, 6, 13)),
-    Reminder(place: 'Tuy', event: 'Saints Peter and Paul', date: DateTime(2025, 6, 29)),
-    Reminder(place: 'Tuy', event: 'Assumption of Mary', date: DateTime(2025, 8, 15)),
-    Reminder(place: 'Tuy', event: 'All Saints\' Day', date: DateTime(2025, 11, 1)),
-    Reminder(place: 'Tuy', event: 'All Souls\' Day', date: DateTime(2025, 11, 2)),
-    Reminder(place: 'Tuy', event: 'Christ the King', date: DateTime(2025, 11, 23)),
-    Reminder(place: 'Tuy', event: 'Immaculate Conception', date: DateTime(2025, 12, 8)),
-    Reminder(place: 'Tuy', event: 'Simbang Gabi (Dawn Masses)', date: DateTime(2025, 12, 16)),
-    Reminder(place: 'Tuy', event: 'Christmas Day', date: DateTime(2025, 12, 25)),
-    Reminder(place: 'Tuy', event: 'New Year\'s Eve Thanksgiving Mass', date: DateTime(2025, 12, 31)),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _generateOccasionsForCurrentYear();
+  }
+
+  void _generateOccasionsForCurrentYear() {
+    final currentYear = DateTime.now().year;
+    final easter = _calculateEasterSunday(currentYear);
+    
+    _occasions = [
+      // Fixed date occasions
+      Reminder(place: '', event: 'Solemnity of Mary, Mother of God', date: DateTime(currentYear, 1, 1), description: 'Mother of God Celebration'),
+      Reminder(place: '', event: 'Epiphany of the Lord', date: DateTime(currentYear, 1, 7), description: 'Manifestation of Christ'),
+      Reminder(place: '', event: 'Baptism of the Lord', date: DateTime(currentYear, 1, 12), description: 'Jesus\' Baptism'),
+      Reminder(place: '', event: 'Presentation of the Lord', date: DateTime(currentYear, 2, 2), description: 'Candlemas Day'),
+      Reminder(place: '', event: 'St. Joseph, Husband of Mary', date: DateTime(currentYear, 3, 19), description: 'Patron of the Universal Church'),
+      Reminder(place: '', event: 'Sacred Heart of Jesus', date: DateTime(currentYear, 6, 13), description: 'Divine Love Celebration'),
+      Reminder(place: '', event: 'Saints Peter and Paul', date: DateTime(currentYear, 6, 29), description: 'Apostles\' Feast'),
+      Reminder(place: '', event: 'Assumption of Mary', date: DateTime(currentYear, 8, 15), description: 'Mary\'s Heavenly Assumption'),
+      Reminder(place: '', event: 'All Saints\' Day', date: DateTime(currentYear, 11, 1), description: 'Celebration of All Saints'),
+      Reminder(place: '', event: 'All Souls\' Day', date: DateTime(currentYear, 11, 2), description: 'Prayer for the Faithful Departed'),
+      Reminder(place: '', event: 'Christ the King', date: DateTime(currentYear, 11, 23), description: 'Sovereignty of Christ'),
+      Reminder(place: '', event: 'Immaculate Conception', date: DateTime(currentYear, 12, 8), description: 'Mary\'s Sinless Conception'),
+      Reminder(place: '', event: 'Simbang Gabi (Dawn Masses)', date: DateTime(currentYear, 12, 16), description: 'Filipino Christmas Tradition'),
+      Reminder(place: '', event: 'Christmas Day', date: DateTime(currentYear, 12, 25), description: 'Birth of Jesus Christ'),
+      Reminder(place: '', event: 'New Year\'s Eve Thanksgiving Mass', date: DateTime(currentYear, 12, 31), description: 'Year-End Thanksgiving'),
+      
+      // Movable feasts (Easter-based)
+      Reminder(place: '', event: 'Ash Wednesday', date: easter.subtract(Duration(days: 46)), description: 'Beginning of Lent'),
+      Reminder(place: '', event: 'Palm Sunday', date: easter.subtract(Duration(days: 7)), description: 'Jesus\' Triumphal Entry'),
+      Reminder(place: '', event: 'Holy Thursday', date: easter.subtract(Duration(days: 3)), description: 'Last Supper Celebration'),
+      Reminder(place: '', event: 'Good Friday', date: easter.subtract(Duration(days: 2)), description: 'Crucifixion of Jesus'),
+      Reminder(place: '', event: 'Black Saturday', date: easter.subtract(Duration(days: 1)), description: 'Jesus in the Tomb'),
+      Reminder(place: '', event: 'Easter Sunday', date: easter, description: 'Resurrection of Jesus'),
+      Reminder(place: '', event: 'Ascension of the Lord', date: easter.add(Duration(days: 39)), description: 'Jesus Ascends to Heaven'),
+      Reminder(place: '', event: 'Pentecost Sunday', date: easter.add(Duration(days: 49)), description: 'Descent of the Holy Spirit'),
+      Reminder(place: '', event: 'Holy Trinity Sunday', date: easter.add(Duration(days: 56)), description: 'Father, Son, and Holy Spirit'),
+      Reminder(place: '', event: 'Corpus Christi', date: easter.add(Duration(days: 60)), description: 'Body and Blood of Christ'),
+    ];
+  }
+
+  // Helper function to get description for each occasion
+  String _getOccasionDescription(String eventName) {
+    switch (eventName) {
+      case 'Solemnity of Mary, Mother of God':
+        return 'Mother of God Celebration';
+      case 'Epiphany of the Lord':
+        return 'Manifestation of Christ';
+      case 'Baptism of the Lord':
+        return 'Jesus\' Baptism';
+      case 'Presentation of the Lord':
+        return 'Candlemas Day';
+      case 'St. Joseph, Husband of Mary':
+        return 'Patron of the Universal Church';
+      case 'Sacred Heart of Jesus':
+        return 'Divine Love Celebration';
+      case 'Saints Peter and Paul':
+        return 'Apostles\' Feast';
+      case 'Assumption of Mary':
+        return 'Mary\'s Heavenly Assumption';
+      case 'All Saints\' Day':
+        return 'Celebration of All Saints';
+      case 'All Souls\' Day':
+        return 'Prayer for the Faithful Departed';
+      case 'Christ the King':
+        return 'Sovereignty of Christ';
+      case 'Immaculate Conception':
+        return 'Mary\'s Sinless Conception';
+      case 'Simbang Gabi (Dawn Masses)':
+        return 'Filipino Christmas Tradition';
+      case 'Christmas Day':
+        return 'Birth of Jesus Christ';
+      case 'New Year\'s Eve Thanksgiving Mass':
+        return 'Year-End Thanksgiving';
+      case 'Ash Wednesday':
+        return 'Beginning of Lent';
+      case 'Palm Sunday':
+        return 'Jesus\' Triumphal Entry';
+      case 'Holy Thursday':
+        return 'Last Supper Celebration';
+      case 'Good Friday':
+        return 'Crucifixion of Jesus';
+      case 'Black Saturday':
+        return 'Jesus in the Tomb';
+      case 'Easter Sunday':
+        return 'Resurrection of Jesus';
+      case 'Ascension of the Lord':
+        return 'Jesus Ascends to Heaven';
+      case 'Pentecost Sunday':
+        return 'Descent of the Holy Spirit';
+      case 'Holy Trinity Sunday':
+        return 'Father, Son, and Holy Spirit';
+      case 'Corpus Christi':
+        return 'Body and Blood of Christ';
+      default:
+        return 'Church Occasion';
+    }
+  }
 
   // In _ChurchCalendarPageState, add this helper to get all occasion dates for any year:
   List<DateTime> _getOccasionDatesForYear(int year) {
@@ -492,16 +565,16 @@ class _ChurchCalendarPageState extends State<ChurchCalendarPage> {
   List<Reminder> _getMovableFeasts(int year) {
     final easter = _calculateEasterSunday(year);
     return [
-      Reminder(place: 'Tuy', event: 'Ash Wednesday', date: easter.subtract(Duration(days: 46))),
-      Reminder(place: 'Tuy', event: 'Palm Sunday', date: easter.subtract(Duration(days: 7))),
-      Reminder(place: 'Tuy', event: 'Holy Thursday', date: easter.subtract(Duration(days: 3))),
-      Reminder(place: 'Tuy', event: 'Good Friday', date: easter.subtract(Duration(days: 2))),
-      Reminder(place: 'Tuy', event: 'Black Saturday', date: easter.subtract(Duration(days: 1))),
-      Reminder(place: 'Tuy', event: 'Easter Sunday', date: easter),
-      Reminder(place: 'Tuy', event: 'Ascension of the Lord', date: easter.add(Duration(days: 39))),
-      Reminder(place: 'Tuy', event: 'Pentecost Sunday', date: easter.add(Duration(days: 49))),
-      Reminder(place: 'Tuy', event: 'Holy Trinity Sunday', date: easter.add(Duration(days: 56))),
-      Reminder(place: 'Tuy', event: 'Corpus Christi', date: easter.add(Duration(days: 60))),
+      Reminder(place: '', event: 'Ash Wednesday', date: easter.subtract(Duration(days: 46))),
+      Reminder(place: '', event: 'Palm Sunday', date: easter.subtract(Duration(days: 7))),
+      Reminder(place: '', event: 'Holy Thursday', date: easter.subtract(Duration(days: 3))),
+      Reminder(place: '', event: 'Good Friday', date: easter.subtract(Duration(days: 2))),
+      Reminder(place: '', event: 'Black Saturday', date: easter.subtract(Duration(days: 1))),
+      Reminder(place: '', event: 'Easter Sunday', date: easter),
+      Reminder(place: '', event: 'Ascension of the Lord', date: easter.add(Duration(days: 39))),
+      Reminder(place: '', event: 'Pentecost Sunday', date: easter.add(Duration(days: 49))),
+      Reminder(place: '', event: 'Holy Trinity Sunday', date: easter.add(Duration(days: 56))),
+      Reminder(place: '', event: 'Corpus Christi', date: easter.add(Duration(days: 60))),
       // Add more movable feasts here if needed
     ];
   }
@@ -667,43 +740,72 @@ class _ChurchCalendarPageState extends State<ChurchCalendarPage> {
             ),
           ),
           if (_selectedDay != null)
-            ..._getEventsForDay(_selectedDay!).map((reminder) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: Card(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                elevation: 1,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
+            _getEventsForDay(_selectedDay!).isEmpty
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: Column(
                     children: [
-                      CircleAvatar(
-                        backgroundColor: Colors.red[400],
-                        child: Icon(Icons.church, color: Colors.white),
+                      SizedBox(height: 40),
+                      Icon(
+                        Icons.calendar_today,
+                        size: 80,
+                        color: Colors.grey[400],
                       ),
-                      SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      SizedBox(height: 16),
+                      Text(
+                        'No events on ${_monthName(_selectedDay!.month)} ${_selectedDay!.day}, ${_selectedDay!.year}',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w500,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 40),
+                    ],
+                  ),
+                )
+              : Column(
+                  children: _getEventsForDay(_selectedDay!).map((reminder) => Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    child: Card(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      elevation: 1,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
                           children: [
-                            Text(reminder.event, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                            SizedBox(height: 4),
-                            Text('Birth of Jesus Christ', style: TextStyle(color: Colors.black87)), // You can customize subtitle per event
-                            SizedBox(height: 2),
-                            Text('Church Occasion', style: TextStyle(color: Colors.grey)),
+                            CircleAvatar(
+                              backgroundColor: Colors.red[400],
+                              child: Icon(Icons.church, color: Colors.white),
+                            ),
+                            SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(reminder.event, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                  SizedBox(height: 4),
+                                  Text(_getOccasionDescription(reminder.event), style: TextStyle(color: Colors.black87)),
+                                  SizedBox(height: 2),
+                                  Text('Church Occasion', style: TextStyle(color: Colors.grey)),
+                                ],
+                              ),
+                            ),
+                            Icon(Icons.repeat, color: Colors.orange[400]),
                           ],
                         ),
                       ),
-                      Icon(Icons.repeat, color: Colors.orange[400]),
-                    ],
-                  ),
+                    ),
+                  )).toList(),
                 ),
-              ),
-            )),
-          const SizedBox(height: 24),
-          const Text(
-            'Select a day to view events',
-            style: TextStyle(color: Colors.black54, fontSize: 16),
-          ),
+          if (_selectedDay == null) ...[
+            const SizedBox(height: 24),
+            const Text(
+              'Select a day to view events',
+              style: TextStyle(color: Colors.black54, fontSize: 16),
+            ),
+          ],
         ],
       ),
     );

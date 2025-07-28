@@ -9,8 +9,9 @@ class Reminder {
   final String place;
   final String event;
   final DateTime date;
+  final String description;
 
-  Reminder({required this.place, required this.event, required this.date});
+  Reminder({required this.place, required this.event, required this.date, this.description = ''});
 }
 
 class SundayReminderPage extends StatefulWidget {
@@ -329,7 +330,7 @@ class _SundayReminderPageState extends State<SundayReminderPage> with TickerProv
                             children: [
                               const Text('Notification', style: TextStyle(fontWeight: FontWeight.w500)),
                               const SizedBox(height: 2),
-                              const Text('Local notification', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                              const Text('Local notification with sound', style: TextStyle(color: Colors.grey, fontSize: 13)),
                             ],
                           ),
                         ],

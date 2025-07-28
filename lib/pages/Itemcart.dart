@@ -5,12 +5,14 @@ class Itemcart extends StatelessWidget {
   final Reminder reminder;
   final bool isEnabled;
   final Function(bool) onToggle;
+  final bool showPastEventStyling;
 
   const Itemcart({
     super.key, 
     required this.reminder,
     this.isEnabled = true,
     required this.onToggle,
+    this.showPastEventStyling = true,
   });
 
   @override
@@ -20,6 +22,8 @@ class Itemcart extends StatelessWidget {
     final today = DateTime(now.year, now.month, now.day);
     final eventDay = DateTime(eventDate.year, eventDate.month, eventDate.day);
     final daysDiff = eventDay.difference(today).inDays;
+    final isPast = eventDate.isBefore(now);
+    
     String formattedDate = "${_monthName(eventDate.month)} ${eventDate.day}";
     String daysText;
     if (daysDiff > 0) {
@@ -29,6 +33,10 @@ class Itemcart extends StatelessWidget {
     } else {
       daysText = "${-daysDiff} days ago";
     }
+    
+    // Determine styling based on showPastEventStyling parameter
+    final shouldApplyPastStyling = showPastEventStyling && isPast;
+    
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 2,
@@ -40,10 +48,10 @@ class Itemcart extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 24,
-              backgroundColor: (eventDate.isBefore(now)) ? Colors.red : (isEnabled ? Color(0xFF263D9A) : Colors.grey[400]),
+              backgroundColor: shouldApplyPastStyling ? Colors.grey[400] : (isEnabled ? Color(0xFF263D9A) : Colors.grey[400]),
               child: Icon(
-                eventDate.isBefore(now)
-                  ? Icons.close
+                shouldApplyPastStyling
+                  ? Icons.event_busy
                   : (isEnabled ? Icons.calendar_today : Icons.event_busy),
                 color: Colors.white,
                 size: 28,
@@ -59,24 +67,25 @@ class Itemcart extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: eventDate.isBefore(now) ? Colors.red : null,
-                      decoration: isEnabled ? null : TextDecoration.lineThrough,
+                      color: shouldApplyPastStyling ? Colors.grey[600] : null,
+                      decoration: shouldApplyPastStyling || !isEnabled ? TextDecoration.lineThrough : null,
                     ),
                   ),
                   SizedBox(height: 6),
                   Text(
                     '$formattedDate • $daysText',
                     style: TextStyle(
-                      color: eventDate.isBefore(now) ? Colors.red : Color(0xFF263D9A),
+                      color: shouldApplyPastStyling ? Colors.grey[500] : Color(0xFF263D9A),
                       fontWeight: FontWeight.normal,
+                      decoration: shouldApplyPastStyling ? TextDecoration.lineThrough : null,
                     ),
                   ),
                 ],
               ),
             ),
             Switch(
-              value: eventDate.isBefore(now) ? false : isEnabled,
-              onChanged: eventDate.isBefore(now) ? null : onToggle,
+              value: isPast ? false : isEnabled,
+              onChanged: isPast ? null : onToggle,
               activeColor: Color(0xFF263D9A),
             ),
           ],
