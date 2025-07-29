@@ -59,7 +59,9 @@ class MyApp extends StatelessWidget {
 void startGlobalReminderChecker() {
   final AudioPlayer _audioPlayer = globalAudioPlayer;
   final Set<int> _playedReminders = {};
-  final Map<String, int> _occasionAlertCounts = {}; // Track alert counts for occasions
+  final Map<String, int> _occasionAlertCounts = {}; 
+  final Map<String, int> _sundayAlertCounts = {}; 
+  final Map<String, int> _customAlertCounts = {}; 
   
   Timer.periodic(Duration(seconds: 1), (timer) async {
     final now = DateTime.now();
@@ -70,27 +72,81 @@ void startGlobalReminderChecker() {
     if (now.weekday == DateTime.sunday &&
         now.hour == hour &&
         now.minute == minute) {
-      final key = now.year * 100000000 + now.month * 1000000 + now.day * 10000 + now.hour * 100 + now.minute + 1000000000;
-      if (!_playedReminders.contains(key)) {
-        await _audioPlayer.play(AssetSource('alarmmm.mp3'));
-        _playedReminders.add(key);
-        _showReminderDialog('Sunday Church Reminder');
+      
+      // Create a unique key for Sunday reminder on this day
+      final sundayKey = 'sunday_${now.year}_${now.month}_${now.day}';
+      
+      // Initialize alert count if not exists
+      if (!_sundayAlertCounts.containsKey(sundayKey)) {
+        _sundayAlertCounts[sundayKey] = 0;
+      }
+      
+      // Check if we should alert (every 5 minutes, max 3 times)
+      final alertCount = _sundayAlertCounts[sundayKey]!;
+      if (alertCount < 3) {
+        // Calculate if it's time for the next alert
+        // First alert at set time, then every 5 minutes
+        final firstAlertTime = DateTime(now.year, now.month, now.day, hour, minute);
+        final minutesSinceFirstAlert = now.difference(firstAlertTime).inMinutes;
+        
+        // Alert at 0, 5, and 10 minutes (3 times total)
+        if (minutesSinceFirstAlert >= 0 && 
+            minutesSinceFirstAlert % 5 == 0 && 
+            minutesSinceFirstAlert <= 10) {
+          
+          // Check if we haven't already alerted for this specific time
+          final timeKey = '${sundayKey}_${minutesSinceFirstAlert}';
+          if (!_playedReminders.contains(timeKey.hashCode)) {
+            await _audioPlayer.play(AssetSource('alarmmm.mp3'));
+            _playedReminders.add(timeKey.hashCode);
+            _sundayAlertCounts[sundayKey] = alertCount + 1;
+            _showReminderDialog('Sunday Church Reminder');
+          }
+        }
       }
     }
     // Check Custom Reminders
     for (final reminder in customReminders) {
       final isEnabled = customReminderStates[reminder.event] ?? true;
       if (!isEnabled) continue;
-      final key = reminder.hashCode ^ (now.year * 100000000 + now.month * 1000000 + now.day * 10000 + now.hour * 100 + now.minute);
+      
       if (reminder.date.year == now.year &&
           reminder.date.month == now.month &&
           reminder.date.day == now.day &&
           reminder.date.hour == now.hour &&
-          reminder.date.minute == now.minute &&
-          !_playedReminders.contains(key)) {
-        await _audioPlayer.play(AssetSource('alarmmm.mp3'));
-        _playedReminders.add(key);
-        _showReminderDialog(reminder.event);
+          reminder.date.minute == now.minute) {
+        
+        // Create a unique key for this custom reminder on this day
+        final customKey = '${reminder.event}_${now.year}_${now.month}_${now.day}';
+        
+        // Initialize alert count if not exists
+        if (!_customAlertCounts.containsKey(customKey)) {
+          _customAlertCounts[customKey] = 0;
+        }
+        
+        // Check if we should alert (every 5 minutes, max 3 times)
+        final alertCount = _customAlertCounts[customKey]!;
+        if (alertCount < 3) {
+          // Calculate if it's time for the next alert
+          // First alert at set time, then every 5 minutes
+          final firstAlertTime = DateTime(now.year, now.month, now.day, reminder.date.hour, reminder.date.minute);
+          final minutesSinceFirstAlert = now.difference(firstAlertTime).inMinutes;
+          
+          // Alert at 0, 5, and 10 minutes (3 times total)
+          if (minutesSinceFirstAlert >= 0 && 
+              minutesSinceFirstAlert % 5 == 0 && 
+              minutesSinceFirstAlert <= 10) {
+            
+            // Check if we haven't already alerted for this specific time
+            final timeKey = '${customKey}_${minutesSinceFirstAlert}';
+            if (!_playedReminders.contains(timeKey.hashCode)) {
+              await _audioPlayer.play(AssetSource('alarmmm.mp3'));
+              _playedReminders.add(timeKey.hashCode);
+              _customAlertCounts[customKey] = alertCount + 1;
+              _showReminderDialog(reminder.event);
+            }
+          }
+        }
       }
     }
     // Check Church Occasions

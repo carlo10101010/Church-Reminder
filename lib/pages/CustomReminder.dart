@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:church_reminder/pages/Reminder.dart';
 import 'Itemcart.dart';
-import 'package:audioplayers/audioplayers.dart';
 
 // Static lists to persist data during app session
 final List<Reminder> customReminders = [];
@@ -15,45 +14,10 @@ class CustomReminder extends StatefulWidget {
 }
 
 class _CustomReminderState extends State<CustomReminder> {
-  final AudioPlayer _audioPlayer = AudioPlayer();
-  final Set<int> _playedReminders = {};
   @override
   void initState() {
     super.initState();
-    _startCustomReminderChecker();
-  }
-
-  void _startCustomReminderChecker() {
-    Future.doWhile(() async {
-      await Future.delayed(const Duration(seconds: 1));
-      if (!mounted) return false;
-      final now = DateTime.now();
-      for (final reminder in customReminders) {
-        final isEnabled = customReminderStates[reminder.event] ?? true;
-        if (!isEnabled) continue;
-        final key = reminder.hashCode ^ (now.year * 100000000 + now.month * 1000000 + now.day * 10000 + now.hour * 100 + now.minute);
-        if (reminder.date.year == now.year &&
-            reminder.date.month == now.month &&
-            reminder.date.day == now.day &&
-            reminder.date.hour == now.hour &&
-            reminder.date.minute == now.minute &&
-            !_playedReminders.contains(key)) {
-          _playAlertSound();
-          _playedReminders.add(key);
-        }
-      }
-      return mounted;
-    });
-  }
-
-  Future<void> _playAlertSound() async {
-    await _audioPlayer.play(AssetSource('alarmmm.mp3'));
-  }
-
-  @override
-  void dispose() {
-    _audioPlayer.dispose();
-    super.dispose();
+    // Removed the duplicate alarm checker since it's handled globally in main.dart
   }
 
   void toggleCustomReminder(String eventName, bool value) {
