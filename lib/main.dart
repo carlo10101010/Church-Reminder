@@ -2,6 +2,7 @@ import 'package:church_reminder/pages/Addreminder.dart';
 import 'package:church_reminder/pages/Dashboard.dart';
 import 'package:church_reminder/pages/ListItems.dart';
 import 'package:church_reminder/pages/CustomReminder.dart';
+import 'package:church_reminder/pages/SplashScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
@@ -46,8 +47,28 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       navigatorKey: globalNavigatorKey,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        primaryColor: Color(0xFF1565C0),
+        scaffoldBackgroundColor: Colors.white,
+        appBarTheme: AppBarTheme(
+          backgroundColor: Color(0xFF1565C0),
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Color(0xFF1565C0),
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+      ),
       routes: {
-        '/' : (context) => Dashboard(),
+        '/' : (context) => SplashScreen(),
+        '/dashboard' : (context) => Dashboard(),
         '/add' : (context) => Addreminder(),
         '/occasions' : (context) => Listitems(),
         '/custom-reminders' : (context) => CustomReminder(),
