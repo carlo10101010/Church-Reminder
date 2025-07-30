@@ -142,13 +142,14 @@ class _SplashScreenState extends State<SplashScreen>
 
   void _initializeParticles() {
     final random = math.Random();
-    for (int i = 0; i < 20; i++) {
+    // Reduced particles from 20 to 8 for better performance
+    for (int i = 0; i < 8; i++) {
       _particles.add(Particle(
         x: random.nextDouble() * 400,
         y: random.nextDouble() * 800,
-        size: random.nextDouble() * 3 + 1,
-        speed: random.nextDouble() * 2 + 0.5,
-        opacity: random.nextDouble() * 0.5 + 0.2,
+        size: random.nextDouble() * 2 + 1,
+        speed: random.nextDouble() * 1.5 + 0.3,
+        opacity: random.nextDouble() * 0.4 + 0.3,
       ));
     }
   }

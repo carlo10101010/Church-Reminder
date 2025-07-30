@@ -38,7 +38,11 @@ void main() async {
   }
 
   runApp(MyApp());
-  startGlobalReminderChecker();
+  
+  // Delay the reminder checker to start after app initialization
+  Timer(Duration(seconds: 3), () {
+    startGlobalReminderChecker();
+  });
 }
 
 class MyApp extends StatelessWidget {
