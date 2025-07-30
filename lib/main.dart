@@ -114,7 +114,7 @@ void startGlobalReminderChecker() {
         final firstAlertTime = DateTime(now.year, now.month, now.day, hour, minute);
         final minutesSinceFirstAlert = now.difference(firstAlertTime).inMinutes;
         
-        // Alert at 0, 5, and 10 minutes (3 times total)
+        // Alert at 0, 5, and 10 minutes 
         if (minutesSinceFirstAlert >= 0 && 
             minutesSinceFirstAlert % 5 == 0 && 
             minutesSinceFirstAlert <= 10) {
